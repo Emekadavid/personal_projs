@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table-Scout: Image to Excel Instantly</title>
+    <style>
+        /* --- General Styling --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-color: #f0f2f5;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --subtle-text-color: #777;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --border-color: #ddd;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* --- Header --- */
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .header p {
+            color: var(--subtle-text-color);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .header a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .header a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- Form Styling --- */
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        /* --- Custom File Input --- */
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: var(--primary-color);
+            background-color: #f9f9f9;
+        }
+        
+        .file-input-wrapper.active {
+             border-color: var(--primary-color);
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .file-input-text {
+            margin-top: 10px;
+            color: var(--subtle-text-color);
+        }
+        
+        #file-name {
+            margin-top: 10px;
+            color: var(--success-color);
+            font-weight: 500;
+        }
+        
+        .or-divider {
+            text-align: center;
+            margin: 15px 0;
+            color: var(--subtle-text-color);
+        }
+
+        /* --- Text Inputs --- */
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+        }
+        
+        /* --- Notice --- */
+        .notice {
+            background-color: #e9f5ff;
+            color: #0366d6;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        /* --- Buttons --- */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, opacity 0.3s;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-submit:hover:not(:disabled) {
+            background: linear-gradient(135deg, #7b2cbf, #3b82f6);
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background-color: #f1f1f1;
+            color: var(--text-color);
+        }
+        
+        .btn-reset:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* --- Status Messages --- */
+        .status-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none; /* Hidden by default */
+        }
+        
+        .status-message.error {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            display: block;
+        }
+        
+        .status-message.success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>Table-Scout</h1>
+            <p>Instantly convert structured tables from images into Excel files. This page is a live demonstration for a personal project hosted on my <a href="https://github.com/your-username/your-repo" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>
+        </header>
+
+        <form id="conversion-form">
+            
+            <div class="form-group">
+                <label for="image-file">1. Upload Image File</label>
+                <div class="file-input-wrapper" id="file-drop-zone">
+                    <input type="file" id="image-file" name="imageFile" accept="image/*">
+                    <div class="file-input-icon">🖼️</div>
+                    <div class="file-input-text"><b>Click to upload</b> or drag and drop</div>
+                </div>
+                <div id="file-name"></div>
+                <div class="or-divider">OR</div>
+                <input type="text" id="image-url" name="imageUrl" class="input-field" placeholder="Paste image HTTP link here">
+            </div>
+
+            <div class="form-group">
+                <label for="api-key">2. Enter API Key</label>
+                <input type="password" id="api-key" name="apiKey" class="input-field" placeholder="Enter your API key" required>
+            </div>
+
+            <div class="form-group">
+                <label for="output-path">3. Output Location (Optional)</label>
+                <input type="text" id="output-path" name="outputPath" class="input-field" placeholder="e.g., C:\Users\YourName\Downloads">
+                 <div class="notice">
+                    <b>Note:</b> This is safe and only used to store the final Excel file. If you uploaded a local image and leave this blank, the Excel file will be saved in the same folder as your image.
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-submit">Convert to Excel</button>
+                <button type="reset" class="btn btn-reset">Reset</button>
+            </div>
+            
+            <div id="status-message" class="status-message"></div>
+
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('conversion-form');
+        const fileInput = document.getElementById('image-file');
+        const fileNameDisplay = document.getElementById('file-name');
+        const fileDropZone = document.getElementById('file-drop-zone');
+        
+        // --- Reset form logic ---
+        form.addEventListener('reset', () => {
+            const statusMessage = document.getElementById('status-message');
+            fileNameDisplay.textContent = '';
+            statusMessage.textContent = '';
+            statusMessage.className = 'status-message';
+            fileDropZone.classList.remove('active');
+        });
+
+        // --- Display uploaded file name ---
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = `Selected file: ${fileInput.files[0].name}`;
+                fileDropZone.classList.add('active');
+            }
+        });
+        
+        // --- Drag and Drop functionality ---
+        fileDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.add('active');
+        });
+        fileDropZone.addEventListener('dragleave', () => {
+            fileDropZone.classList.remove('active');
+        });
+        fileDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('active');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                fileNameDisplay.textContent = `Selected file: ${fileInput.files[0].name}`;
+            }
+        });
+        
+        // --- Add event listener to the form's submit event ---
+        form.addEventListener('submit', handleSubmit);
+
+        // --- Handle form submission ---
+        async function handleSubmit(event) {
+            event.preventDefault(); // Prevent default form submission
+            
+            const statusMessage = document.getElementById('status-message');
+            const submitButton = document.querySelector('.btn-submit');
+
+            // Clear previous status and show processing state
+            statusMessage.textContent = '';
+            statusMessage.className = 'status-message';
+            submitButton.textContent = 'Processing...';
+            submitButton.disabled = true;
+
+            const formData = new FormData(form);
+
+            try {
+                // ===================================================================
+                // IMPORTANT: REPLACE THIS URL WITH YOUR LIVE BACKEND URL
+                const backendUrl = 'https://YOUR-UNIQUE-APP-NAME.onrender.com/convert';
+                // ===================================================================
+
+                // Send the form data to your hosted Python (Flask) server
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    // If response status is 4xx or 5xx, it's an error
+                    // Use the error message from the JSON response, or a default one
+                    throw new Error(result.error || 'An unknown server error occurred.');
+                }
+                
+                // Show success message from the server
+                showSuccess(result.message);
+
+            } catch (error) {
+                // Show error message from the server or a network error
+                console.error("Fetch Error:", error);
+                showError(error.message);
+            } finally {
+                // Re-enable the button regardless of success or failure
+                submitButton.textContent = 'Convert to Excel';
+                submitButton.disabled = false;
+            }
+        }
+        
+        function showError(message) {
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-message error';
+        }
+        
+        function showSuccess(message) {
+             const statusMessage = document.getElementById('status-message');
+             statusMessage.textContent = message;
+             statusMessage.className = 'status-message success';
+        }
+    </script>
+
+</body>
+</html>

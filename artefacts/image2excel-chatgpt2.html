@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageTable → Excel Converter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #dfe9f3, #ffffff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid #63b3ed;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        p.description {
+            color: #2a4365;
+            background-color: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin: 20px 0 8px;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        input[type="text"]::placeholder {
+            color: #a0aec0;
+        }
+
+        .btn-group {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn {
+            background-color: #3182ce;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background-color: #2b6cb0;
+        }
+
+        .reset-btn {
+            background-color: #e53e3e;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background-color: #c53030;
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .error-message {
+            margin-top: 15px;
+            color: #e53e3e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ImageTable → Excel Converter</h1>
+        <p class="description">
+            Quickly transform structured table images into editable Excel spreadsheets using this simple tool.
+        </p>
+        <p class="description">
+            Not sure what a structured table looks like? <a href="https://example.com/sample-structured-table.jpg" target="_blank">Download an example image</a> to test the converter.
+        </p>
+
+        <form id="convertForm" action="http://localhost:5000/upload" method="POST" enctype="multipart/form-data">
+            <div class="note">
+                You must have the companion <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" target="_blank">Python Flask server</a> running to process the form.
+            </div>
+
+            <label for="imageFile">1. Upload image file (local or URL)</label>
+            <input type="file" name="imageFile" id="imageFile">
+            <div class="note">Accepted formats: JPG, PNG, JPEG only.</div>
+
+            <div class="note">You can also provide an image link instead:</div>
+            <input type="text" name="imageUrl" placeholder="http://example.com/table.jpg">
+            <div class="note">Ensure the link points directly to a valid image.</div>
+
+            <label for="apiKey">2. Enter your API key</label>
+            <input type="text" name="apiKey" id="apiKey" placeholder="Your OCR API key">
+
+            <label for="outputPath">3. Desired output location (local path)</label>
+            <input type="text" name="outputPath" id="outputPath" placeholder="e.g., C:/Users/YourName/Documents/">
+            <div class="note">Note: This is safe and only used to store the Excel file locally. If uploading from your machine, output will default to the same folder.</div>
+
+            <div class="btn-group">
+                <button type="submit" class="submit-btn">Submit</button>
+                <button type="reset" class="reset-btn">Reset</button>
+            </div>
+
+            <div id="error" class="error-message" style="display:none;">An error occurred. Please check your inputs.</div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('convertForm');
+        const errorDiv = document.getElementById('error');
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            errorDiv.style.display = 'none';
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    errorDiv.textContent = `Error: ${errorText}`;
+                    errorDiv.style.display = 'block';
+                } else {
+                    alert("Excel file successfully generated!");
+                    form.reset();
+                }
+            } catch (err) {
+                errorDiv.textContent = `Error: ${err.message}`;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
